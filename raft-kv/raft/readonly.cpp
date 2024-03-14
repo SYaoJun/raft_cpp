@@ -11,7 +11,7 @@ void ReadOnly::last_pending_request_ctx(std::vector<uint8_t>& ctx) {
   ctx.insert(ctx.end(), read_index_queue.back().begin(), read_index_queue.back().end());
 }
 
-uint32_t ReadOnly::_ack(const proto::Message& msg) {
+uint32_t ReadOnly::recv_ack(const proto::Message& msg) {
   std::string str(msg.context.begin(), msg.context.end());
 
   auto it = pending_read_index.find(str);

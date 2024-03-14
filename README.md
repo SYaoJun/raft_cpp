@@ -1,3 +1,13 @@
+## 环境配置
+- 本代码在MacOS正常运行，主要基于brew安装的三方依赖，使用find_package查找需要的依赖包。
+## 遇到的问题
+-  msgpack在MAC上默认下载的是c接口，但是代码中需要cpp头文件。
+## 代码来源
+- [raft_kv](https://github.com/XuDaHaoRen/raft_kv)
+- [raft-kv](https://github.com/jinyyu/raft-kv)
+## 测试
+- 暂未启用测试
+-------------------
 # raft-kv
 
 这是一个基于 raft 共识算法的 etcd 数据库，它基于 redis 实现了一种 k-v 存储方式，数据通信使用 asio 框架
