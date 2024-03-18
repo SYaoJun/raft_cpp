@@ -1,7 +1,15 @@
 ## 环境配置
 - 本代码在MacOS正常运行，主要基于brew安装的三方依赖，使用find_package查找需要的依赖包。
+## 运行说明
+- 需要修改cmake目录下的每个文件中，实际安装的路径。
+- 后期会考虑改成直接从仓库拉代码源码编译。
 ## 遇到的问题
 -  msgpack在MAC上默认下载的是c接口，但是代码中需要cpp头文件。
+```sh
+brew install msgpack-cxx
+而不是
+brew install msgpack
+```
 ## 代码来源
 - [raft_kv](https://github.com/XuDaHaoRen/raft_kv)
 - [raft-kv](https://github.com/jinyyu/raft-kv)
