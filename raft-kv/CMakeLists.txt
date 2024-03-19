@@ -4,6 +4,7 @@ set(SRC
     common/slice.h
     common/status.cpp
     common/bytebuffer.cpp
+    common/random_device.h
     common/random_device.cpp
     raft/proto.cpp
     raft/config.cpp
@@ -14,7 +15,6 @@ set(SRC
     raft/unstable.cpp
     raft/progress.cpp
     raft/readonly.cpp
-    raft/raft_status.cpp
     raft/ready.cpp
     raft/util.cpp
     server/raft_node.cpp

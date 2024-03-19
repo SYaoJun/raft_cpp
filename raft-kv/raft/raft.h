@@ -17,7 +17,7 @@ class Raft {
   virtual ~Raft();
 
   void tick();
-  // 变成一个 followe
+  // 变成一个 follower
   void become_follower(uint64_t term, uint64_t lead);
 
   void become_candidate();
@@ -129,7 +129,7 @@ class Raft {
 
   // past_election_timeout returns true if r.electionElapsed is greater
   // than or equal to the randomized election timeout in
-  // [electiontimeout, 2 * electiontimeout - 1].
+  // [election_timeout, 2 * election_timeout - 1].
   bool past_election_timeout();
 
   void reset_randomized_election_timeout();

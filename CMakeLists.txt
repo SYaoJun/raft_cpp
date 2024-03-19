@@ -51,14 +51,20 @@ set(LIBS
 
 add_subdirectory(raft-kv)
 
+find_package(GTEST REQUIRED)
+# make sure all letter is captial, otherwise it will mismatch.
+if (GTEST_FOUND)
+    message(STATUS "GoogleTest FOUND!")
+    set(LIBS
+        ${LIBS}
+        GTest::gtest 
+        GTest::gtest_main
+        )
+    add_subdirectory(tests)
+    enable_testing()
+else ()
+    message(STATUS "GoogleTest not FOUND!")
+endif()
 
-# if (GoogleTest_FOUND)
-#     include_directories(${GoogleTest_INCLUDE_DIRS})
-#     set(LIBS
-#         ${LIBS}
-#         ${GoogleTest_LIBRARIES})
-#     add_subdirectory(tests)
-#     enable_testing()
-# endif (GoogleTest_FOUND)
 
 # configure_file(Procfile.in Procfile)

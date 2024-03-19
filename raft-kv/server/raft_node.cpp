@@ -1,8 +1,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <future>
-#include <raft-kv/server/raft_node.h>
 #include <raft-kv/common/log.h>
+#include <raft-kv/server/raft_node.h>
 
 namespace kv {
 
@@ -20,7 +20,7 @@ RaftNode::RaftNode(uint64_t id, const std::string& cluster, uint16_t port)
       applied_index_(0),
       storage_(new MemoryStorage()),
       snap_count_(defaultSnapCount) {
-  boost::split(peers_, cluster, boost::is_any_of(",")); // 以 ， 开始切割字符串
+  boost::split(peers_, cluster, boost::is_any_of(","));  // 以 ， 开始切割字符串
   if (peers_.empty()) {
     LOG_FATAL("invalid args %s", cluster.c_str());
   }
@@ -34,7 +34,7 @@ RaftNode::RaftNode(uint64_t id, const std::string& cluster, uint16_t port)
     boost::filesystem::create_directories(snap_dir_);
   }
 
-  snapshotter_.reset(new Snapshotter(snap_dir_)); // 创建快照，指向新的对象
+  snapshotter_.reset(new Snapshotter(snap_dir_));  // 创建快照，指向新的对象
 
   bool wal_exists = boost::filesystem::exists(wal_dir_);
 
@@ -55,18 +55,18 @@ RaftNode::RaftNode(uint64_t id, const std::string& cluster, uint16_t port)
   c.read_only_option = ReadOnlySafe;
   c.disable_proposal_forwarding = false;
 
-  Status status = c.validate(); // 对 config 文件中的参数判断是否有效
+  Status status = c.validate();  // 对 config 文件中的参数判断是否有效
 
   if (!status.is_ok()) {
     LOG_FATAL("invalid configure %s", status.to_string().c_str());
   }
 
-  if (wal_exists) { // 如果存在 wal 文件说明该节点之前被创建过
+  if (wal_exists) {  // 如果存在 wal 文件说明该节点之前被创建过
     node_.reset(Node::restart_node(c));
   } else {
-    std::vector<PeerContext> peers; // 保存节点 contex 信息
-    for (size_t i = 0; i < peers_.size(); ++i) { 
-      peers.push_back(PeerContext{.id = i + 1}); // id 从 1 开始
+    std::vector<PeerContext> peers;  // 保存节点 contex 信息
+    for (size_t i = 0; i < peers_.size(); ++i) {
+      peers.push_back(PeerContext{.id = i + 1});  // id 从 1 开始
     }
     node_.reset(Node::start_node(c, peers));
   }
@@ -89,16 +89,16 @@ void RaftNode::start_timer() {
     }
 
     this->start_timer();
-    this->node_->tick(); // 每 100 ms 就发起一次 tick 函数
-    this->pull_ready_events(); // 判断 node 是否已经 ready 
+    this->node_->tick();        // 每 100 ms 就发起一次 tick 函数
+    this->pull_ready_events();  // 判断 node 是否已经 ready
   });
 }
 
 void RaftNode::pull_ready_events() {
   assert(pthread_id_ == pthread_self());
-  while (node_->has_ready()) { // 判断 node 是否已经 ready ，即不是在软状态
+  while (node_->has_ready()) {  // 判断 node 是否已经 ready ，即不是在软状态
     auto rd = node_->ready();
-    if (!rd->contains_updates()) { // 判断状态是否更新
+    if (!rd->contains_updates()) {  // 判断状态是否更新
       LOG_WARN("ready not contains updates");
       return;
     }
@@ -165,10 +165,11 @@ void RaftNode::publish_snapshot(const proto::Snapshot& snap) {
   LOG_DEBUG("publishing snapshot at index %lu", snapshot_index_);
 
   if (snap.metadata.index <= applied_index_) {
-    LOG_FATAL("snapshot index [%lu] should > progress.appliedIndex [%lu] + 1", snap.metadata.index, applied_index_);
+    LOG_FATAL("snapshot index [%lu] should > progress.appliedIndex [%lu] + 1",
+              snap.metadata.index, applied_index_);
   }
 
-  //trigger to load snapshot
+  // trigger to load snapshot
   proto::SnapshotPtr snapshot(new proto::Snapshot());
   snapshot->metadata = snap.metadata;
   SnapshotDataPtr data(new std::vector<uint8_t>(snap.data));
@@ -177,15 +178,15 @@ void RaftNode::publish_snapshot(const proto::Snapshot& snap) {
   snapshot_index_ = snapshot->metadata.index;
   applied_index_ = snapshot->metadata.index;
 
-  redis_server_->recover_from_snapshot(data, [snapshot, this](const Status& status) {
-    //由redis线程回调
+  redis_server_->recover_from_snapshot(data, [snapshot,
+                                              this](const Status& status) {
+    // 由redis线程回调
     if (!status.is_ok()) {
       LOG_FATAL("recover from snapshot error %s", status.to_string().c_str());
     }
 
     LOG_DEBUG("finished publishing snapshot at index %lu", snapshot_index_);
   });
-
 }
 
 void RaftNode::open_WAL(const proto::Snapshot& snap) {
@@ -197,7 +198,8 @@ void RaftNode::open_WAL(const proto::Snapshot& snap) {
   WAL_Snapshot walsnap;
   walsnap.index = snap.metadata.index;
   walsnap.term = snap.metadata.term;
-  LOG_INFO("loading WAL at term %lu and index %lu", walsnap.term, walsnap.index);
+  LOG_INFO("loading WAL at term %lu and index %lu", walsnap.term,
+           walsnap.index);
 
   wal_ = WAL::open(wal_dir_, walsnap);
 }
@@ -232,7 +234,8 @@ void RaftNode::replay_WAL() {
   // append to storage so raft starts at the right place in log
   storage_->append(ents);
 
-  // send nil once lastIndex is published so client knows commit channel is current
+  // send nil once lastIndex is published so client knows commit channel is
+  // current
   if (!ents.empty()) {
     last_index_ = ents.back()->index;
   } else {
@@ -255,10 +258,10 @@ bool RaftNode::publish_entries(const std::vector<proto::EntryPtr>& entries) {
       case proto::EntryConfChange: {
         proto::ConfChange cc;
         try {
-          msgpack::object_handle oh = msgpack::unpack((const char*) entry->data.data(), entry->data.size());
+          msgpack::object_handle oh = msgpack::unpack(
+              (const char*)entry->data.data(), entry->data.size());
           oh.get().convert(cc);
-        }
-        catch (std::exception& e) {
+        } catch (std::exception& e) {
           LOG_ERROR("invalid EntryConfChange msg %s", e.what());
           continue;
         }
@@ -267,7 +270,8 @@ bool RaftNode::publish_entries(const std::vector<proto::EntryPtr>& entries) {
         switch (cc.conf_change_type) {
           case proto::ConfChangeAddNode:
             if (!cc.context.empty()) {
-              std::string str((const char*) cc.context.data(), cc.context.size());
+              std::string str((const char*)cc.context.data(),
+                              cc.context.size());
               transport_->add_peer(cc.node_id, str);
             }
             break;
@@ -300,17 +304,22 @@ bool RaftNode::publish_entries(const std::vector<proto::EntryPtr>& entries) {
   return true;
 }
 
-void RaftNode::entries_to_apply(const std::vector<proto::EntryPtr>& entries, std::vector<proto::EntryPtr>& ents) {
+void RaftNode::entries_to_apply(const std::vector<proto::EntryPtr>& entries,
+                                std::vector<proto::EntryPtr>& ents) {
   if (entries.empty()) {
     return;
   }
 
   uint64_t first = entries[0]->index;
   if (first > applied_index_ + 1) {
-    LOG_FATAL("first index of committed entry[%lu] should <= progress.appliedIndex[%lu]+1", first, applied_index_);
+    LOG_FATAL(
+        "first index of committed entry[%lu] should <= "
+        "progress.appliedIndex[%lu]+1",
+        first, applied_index_);
   }
   if (applied_index_ - first + 1 < entries.size()) {
-    ents.insert(ents.end(), entries.begin() + applied_index_ - first + 1, entries.end());
+    ents.insert(ents.end(), entries.begin() + applied_index_ - first + 1,
+                entries.end());
   }
 }
 
@@ -319,22 +328,22 @@ void RaftNode::maybe_trigger_snapshot() {
     return;
   }
 
-  LOG_DEBUG("start snapshot [applied index: %lu | last snapshot index: %lu], snapshot count[%lu]",
-            applied_index_,
-            snapshot_index_,
-            snap_count_);
+  LOG_DEBUG(
+      "start snapshot [applied index: %lu | last snapshot index: %lu], "
+      "snapshot count[%lu]",
+      applied_index_, snapshot_index_, snap_count_);
 
   std::promise<SnapshotDataPtr> promise;
   std::future<SnapshotDataPtr> future = promise.get_future();
-  redis_server_->get_snapshot(std::move([&promise](const SnapshotDataPtr& data) {
-    promise.set_value(data);
-  }));
+  redis_server_->get_snapshot(std::move(
+      [&promise](const SnapshotDataPtr& data) { promise.set_value(data); }));
 
   future.wait();
   SnapshotDataPtr snapshot_data = future.get();
 
   proto::SnapshotPtr snap;
-  Status status = storage_->create_snapshot(applied_index_, conf_state_, *snapshot_data, snap);
+  Status status = storage_->create_snapshot(applied_index_, conf_state_,
+                                            *snapshot_data, snap);
   if (!status.is_ok()) {
     LOG_FATAL("create snapshot error %s", status.to_string().c_str());
   }
@@ -369,7 +378,8 @@ void RaftNode::schedule() {
   snapshot_index_ = snap->metadata.index;
   applied_index_ = snap->metadata.index;
 
-  redis_server_ = std::make_shared<RedisStore>(this, std::move(snap_data_), port_);
+  redis_server_ =
+      std::make_shared<RedisStore>(this, std::move(snap_data_), port_);
   std::promise<pthread_t> promise;
   std::future<pthread_t> future = promise.get_future();
   redis_server_->start(promise);
@@ -381,7 +391,8 @@ void RaftNode::schedule() {
   io_service_.run();
 }
 
-void RaftNode::propose(std::shared_ptr<std::vector<uint8_t>> data, const StatusCallback& callback) {
+void RaftNode::propose(std::shared_ptr<std::vector<uint8_t>> data,
+                       const StatusCallback& callback) {
   if (pthread_id_ != pthread_self()) {
     io_service_.post([this, data, callback]() {
       Status status = node_->propose(std::move(*data));
@@ -409,14 +420,13 @@ void RaftNode::process(proto::MessagePtr msg, const StatusCallback& callback) {
   }
 }
 
-void RaftNode::is_id_removed(uint64_t id, const std::function<void(bool)>& callback) {
+void RaftNode::is_id_removed(uint64_t id,
+                             const std::function<void(bool)>& callback) {
   LOG_DEBUG("no impl yet");
   callback(false);
 }
 
-void RaftNode::report_unreachable(uint64_t id) {
-  LOG_DEBUG("no impl yet");
-}
+void RaftNode::report_unreachable(uint64_t id) { LOG_DEBUG("no impl yet"); }
 
 void RaftNode::report_snapshot(uint64_t id, SnapshotStatus status) {
   LOG_DEBUG("no impl yet");
@@ -433,16 +443,17 @@ void on_signal(int) {
 
 // 会先调用 main 方法再调用
 void RaftNode::main(uint64_t id, const std::string& cluster, uint16_t port) {
-  ::signal(SIGINT, on_signal); // 捕捉 ctrl-c 信号
+  ::signal(SIGINT, on_signal);  // 捕捉 ctrl-c 信号
   ::signal(SIGHUP, on_signal);
   g_node = std::make_shared<RaftNode>(id, cluster, port);
-  g_node->transport_ = Transport::create(g_node.get(), g_node->id_); // 创建 transport 实例
-  std::string& host = g_node->peers_[id - 1]; // 根据 id 得到 host 
-  g_node->transport_->start(host); // 后端绑定连接并且进行 read 的监听
+  g_node->transport_ =
+      Transport::create(g_node.get(), g_node->id_);  // 创建 transport 实例
+  std::string& host = g_node->peers_[id - 1];        // 根据 id 得到 host
+  g_node->transport_->start(host);  // 后端绑定连接并且进行 read 的监听
 
   for (uint64_t i = 0; i < g_node->peers_.size(); ++i) {
-    uint64_t peer = i + 1;  
-    if (peer == g_node->id_) { // 如果是自己 id 的 host，跳过
+    uint64_t peer = i + 1;
+    if (peer == g_node->id_) {  // 如果是自己 id 的 host，跳过
       continue;
     }
     g_node->transport_->add_peer(peer, g_node->peers_[i]);
@@ -462,4 +473,4 @@ void RaftNode::stop() {
   io_service_.stop();
 }
 
-}
+}  // namespace kv

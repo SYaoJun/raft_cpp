@@ -1,28 +1,22 @@
-/*
- * @Description: 
- * @version: 
- * @Author: xuboluo
- * @Date: 2022-08-03 16:24:10
- * @LastEditors: xuboluo
- * @LastEditTime: 2022-08-04 15:11:17
- */
-#include <stdio.h>
 #include <glib.h>
-#include <stdint.h>
 #include <raft-kv/common/log.h>
 #include <raft-kv/server/raft_node.h>
+#include <stdint.h>
+#include <stdio.h>
 
 static uint64_t g_id = 0;
 static const char* g_cluster = NULL;
 static uint16_t g_port = 0;
 
 int main(int argc, char* argv[]) {
-  GOptionEntry entries[] = { // 不是一个进程有一个对象，而是多个参数
+  GOptionEntry entries[] = {
+      // 不是一个进程有一个对象，而是多个参数
       {"id", 'i', 0, G_OPTION_ARG_INT64, &g_id, "node id", NULL},
-      {"cluster", 'c', 0, G_OPTION_ARG_STRING, &g_cluster, "comma separated cluster peers", NULL},
-      {"port", 'p', 0, G_OPTION_ARG_INT, &g_port, "key-value server port", NULL},
-      {NULL}
-  };
+      {"cluster", 'c', 0, G_OPTION_ARG_STRING, &g_cluster,
+       "comma separated cluster peers", NULL},
+      {"port", 'p', 0, G_OPTION_ARG_INT, &g_port, "key-value server port",
+       NULL},
+      {NULL}};
 
   GError* error = NULL;
   GOptionContext* context = g_option_context_new("usage");
@@ -33,7 +27,7 @@ int main(int argc, char* argv[]) {
   }
   fprintf(stderr, "id:%lu, port:%d, cluster:%s\n", g_id, g_port, g_cluster);
 
-  if (g_id == 0 || g_port == 0) { // id，port 都报错
+  if (g_id == 0 || g_port == 0) {  // id，port 都报错
     char* help = g_option_context_get_help(context, true, NULL);
     fprintf(stderr, help);
     free(help);

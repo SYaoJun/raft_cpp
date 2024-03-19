@@ -1,11 +1,3 @@
-/*
- * @Description: snap 用于保存 entry 中无法存放的数据
- * @version: 
- * @Author: xuboluo
- * @Date: 2022-08-03 16:24:10
- * @LastEditors: xuboluo
- * @LastEditTime: 2022-08-14 17:50:00
- */
 #pragma once
 #include <string>
 #include <memory>

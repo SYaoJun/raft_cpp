@@ -1,11 +1,3 @@
-/*
- * @Description: 
- * @version: 
- * @Author: xuboluo
- * @Date: 2022-08-03 16:24:10
- * @LastEditors: xuboluo
- * @LastEditTime: 2022-08-03 20:14:32
- */
 #pragma once
 #include <string>
 #include <stdint.h>

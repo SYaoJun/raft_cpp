@@ -1,11 +1,3 @@
-/*
- * @Description: 
- * @version: 
- * @Author: xuboluo
- * @Date: 2022-08-03 16:24:10
- * @LastEditors: xuboluo
- * @LastEditTime: 2022-08-23 17:03:47
- */
 #pragma once
 #include <raft-kv/raft/proto.h>
 

@@ -1,11 +1,3 @@
-/*
- * @Description: 压缩已经 stabel 的日志和 msg 
- * @version: 
- * @Author: xuboluo
- * @Date: 2022-08-03 16:24:10
- * @LastEditors: xuboluo
- * @LastEditTime: 2022-08-23 18:29:18
- */
 #pragma once
 #include <raft-kv/raft/proto.h>
 #include <raft-kv/raft/readonly.h>
