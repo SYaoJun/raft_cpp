@@ -1,6 +1,6 @@
 /*
- * @Descripttion: 
- * @version: 
+ * @Description:
+ * @version:
  * @Author: xuboluo
  * @Date: 2022-08-03 16:24:10
  * @LastEditors: xuboluo
@@ -19,8 +19,10 @@ Status Config::validate() {
     return Status::invalid_argument("heartbeat tick must be greater than 0");
   }
 
-  if (this->election_tick <= this->heartbeat_tick) { // 选举的 tick > heart tick
-    return Status::invalid_argument("election tick must be greater than heartbeat tick");
+  if (this->election_tick <=
+      this->heartbeat_tick) {  // 选举的 tick > heart tick
+    return Status::invalid_argument(
+        "election tick must be greater than heartbeat tick");
   }
 
   if (!this->storage) {
@@ -38,15 +40,17 @@ Status Config::validate() {
   }
 
   if (this->max_inflight_msgs <= 0) {
-    return Status::invalid_argument("max inflight messages must be greater than 0");
+    return Status::invalid_argument(
+        "max inflight messages must be greater than 0");
   }
 
   if (this->read_only_option == ReadOnlyLeaseBased && !this->check_quorum) {
-    return Status::invalid_argument("check_quorum must be enabled when read_only_option is ReadOnlyLeaseBased");
+    return Status::invalid_argument(
+        "check_quorum must be enabled when read_only_option is "
+        "ReadOnlyLeaseBased");
   }
 
   return Status::ok();
-
 }
 
-}
+}  // namespace kv

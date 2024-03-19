@@ -1,5 +1,5 @@
 /*
- * @Descripttion: 压缩已经 stabel 的日志和 msg 
+ * @Description: 压缩已经 stabel 的日志和 msg 
  * @version: 
  * @Author: xuboluo
  * @Date: 2022-08-03 16:24:10

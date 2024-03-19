@@ -1,5 +1,5 @@
 /*
- * @Descripttion: snap 用于保存 entry 中无法存放的数据
+ * @Description: snap 用于保存 entry 中无法存放的数据
  * @version: 
  * @Author: xuboluo
  * @Date: 2022-08-03 16:24:10

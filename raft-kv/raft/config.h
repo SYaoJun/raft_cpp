@@ -1,7 +1,7 @@
 #pragma once
+#include <raft-kv/raft/storage.h>
 #include <stdint.h>
 #include <vector>
-#include <raft-kv/raft/storage.h>
 
 namespace kv {
 
@@ -13,8 +13,8 @@ enum ReadOnlyOption {
   // ReadOnlyLeaseBased ensures linearizability of the read only request by
   // relying on the leader lease. It can be affected by clock drift.
   // If the clock drift is unbounded, leader might keep the lease longer than it
-  // should (clock can move backward/pause without any bound). ReadIndex is not safe
-  // in that case.
+  // should (clock can move backward/pause without any bound). ReadIndex is not
+  // safe in that case.
   ReadOnlyLeaseBased = 1,
 };
 
@@ -23,8 +23,10 @@ enum ReadOnlyOption {
 struct Config {
   explicit Config()
       : id(0),
-        election_tick(0), // 当 follower 在 election_tick 的时间之后还没有收到 leader 发过来的消息，那么就会重新开始选举
-        heartbeat_tick(0), // leader 每隔 hearbeat_tick 的时间，都会给 follower 发送心跳消息
+        election_tick(0),  // 当 follower 在 election_tick 的时间之后还没有收到
+                           // leader 发过来的消息，那么就会重新开始选举
+        heartbeat_tick(0),  // leader 每隔 heartbeat_tick 的时间，都会给
+                            // follower 发送心跳消息
         applied(0),
         max_size_per_msg(0),
         max_committed_size_per_ready(0),
@@ -38,10 +40,10 @@ struct Config {
   // id is the identity of the local raft. ID cannot be 0.
   uint64_t id;
 
-  // peers contains the IDs of all nodes (including self) in the raft cluster. It
-  // should only be set when starting a new raft cluster. Restarting raft from
-  // previous configuration will panic if peers is set. peer is private and only
-  // used for testing right now.
+  // peers contains the IDs of all nodes (including self) in the raft cluster.
+  // It should only be set when starting a new raft cluster. Restarting raft
+  // from previous configuration will panic if peers is set. peer is private and
+  // only used for testing right now.
   std::vector<uint64_t> peers;
 
   // learners contains the IDs of all learner nodes (including self if the
@@ -55,12 +57,11 @@ struct Config {
   // candidate and start an election. election_tick must be greater than
   // heartbeat_tick. We suggest election_tick = 10 * heartbeat_tick to avoid
   // unnecessary leader switching.
-  // 如果 follower 没有及时收到 leader 的 election_tick 则就会成 candidate 
+  // 如果 follower 没有及时收到 leader 的 election_tick 则就会成 candidate
   uint32_t election_tick;
-  // heartbeat_tick is the number of Node.tick invocations that must pass between
-  // heartbeats. That is, a leader sends heartbeat messages to maintain its
-  // leadership every heartbeat_tick ticks.
-  // leader 多久去发送一个心跳包
+  // heartbeat_tick is the number of Node.tick invocations that must pass
+  // between heartbeats. That is, a leader sends heartbeat messages to maintain
+  // its leadership every heartbeat_tick ticks. leader 多久去发送一个心跳包
   uint32_t heartbeat_tick;
 
   // storage is the storage for raft. raft generates entries and states to be
@@ -111,9 +112,9 @@ struct Config {
   // ReadOnlyLeaseBased ensures linearizability of the read only request by
   // relying on the leader lease. It can be affected by clock drift.
   // If the clock drift is unbounded, leader might keep the lease longer than it
-  // should (clock can move backward/pause without any bound). read_index is not safe
-  // in that case.
-  // CheckQuorum MUST be enabled if ReadOnlyOption is ReadOnlyLeaseBased.
+  // should (clock can move backward/pause without any bound). read_index is not
+  // safe in that case. CheckQuorum MUST be enabled if ReadOnlyOption is
+  // ReadOnlyLeaseBased.
   ReadOnlyOption read_only_option;
 
   // disable_proposal_forwarding set to true means that followers will drop
@@ -129,4 +130,4 @@ struct Config {
   Status validate();
 };
 
-}
+}  // namespace kv
